@@ -208,7 +208,19 @@ if C_Container then
   end
 end
 
--- Forever rejects the <Backdrop> XML element, so frames have no native backdrop
+-- Likewise, the item query functions moved into the C_Item namespace on Forever
+-- (the plain GetItemInfo global is nil there). Re-expose the ones TBag uses;
+-- the C_Item versions return the same values as the classic globals.
+if C_Item then
+  GetItemInfo         = GetItemInfo         or C_Item.GetItemInfo;
+  GetItemInfoInstant  = GetItemInfoInstant  or C_Item.GetItemInfoInstant;
+  GetItemCount        = GetItemCount        or C_Item.GetItemCount;
+  GetItemQualityColor = GetItemQualityColor or C_Item.GetItemQualityColor;
+  GetItemFamily       = GetItemFamily       or C_Item.GetItemFamily;
+  GetItemIcon         = GetItemIcon         or C_Item.GetItemIconByID;
+end
+
+
 -- or backdrop methods. Apply one in Lua via the mainline BackdropTemplate mixin.
 TBag.FRAME_BACKDROP = {
   bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",

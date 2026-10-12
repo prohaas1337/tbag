@@ -64,7 +64,7 @@
         </Anchors>
         <Scripts>
           <OnShow>
-            TInvFrame.UserDropdown_OnLoad(self);
+            if TInvFrame.UserDropdown_OnLoad then TInvFrame.UserDropdown_OnLoad(self); end
           </OnShow>
         </Scripts>
       </Frame>

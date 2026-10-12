@@ -21,10 +21,10 @@
         table.insert(UISpecialFrames, self:GetName())
       </OnLoad>
       <OnShow>
-        self:OnShow()
+        if self.OnShow then self:OnShow() end
       </OnShow>
       <OnHide>
-        self:OnHide()
+        if self.OnHide then self:OnHide() end
       </OnHide>
       <OnDragStart>
         self:DragStart()

@@ -65,7 +65,7 @@
         </Anchors>
         <Scripts>
           <OnShow>
-            TBnkFrame.UserDropdown_OnLoad(self);
+            if TBnkFrame.UserDropdown_OnLoad then TBnkFrame.UserDropdown_OnLoad(self); end
           </OnShow>
         </Scripts>
       </Frame>
