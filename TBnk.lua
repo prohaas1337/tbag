@@ -268,6 +268,9 @@ function Bank:InitBagGfx()
   for i=1, NUM_BANKBAGSLOTS do
     button = _G["TBnkFrameBag"..i];
     if ( button ) then
+      -- The XML ids assume bank bags start at 5; on Forever they start at
+      -- NumBags+1 (6) because of the extra equipped bag, so re-id them here.
+      button:SetID(TBag.NumBags + i);
       if ( i <= numSlots ) then
         SetItemButtonTextureVertexColor(button, 1.0,1.0,1.0, 1.0);
         button.tooltipText = BANK_BAG;
