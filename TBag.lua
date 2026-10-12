@@ -251,11 +251,21 @@ function TBag:ApplyBackdrop(frame)
 end
 
 TBag.BAGMIN = BANK_CONTAINER;
-TBag.BAGMAX = 10;
 TBag.MAX_REAGENTBANK_ITEMS = 98 -- has to be a constant since game can't tell us in time
-TBag.Inv_Bags = { BACKPACK_CONTAINER, 4, 3, 2, 1 };
 
-TBag.Bnk_Bags = { BANK_CONTAINER, 5, 6, 7, 8, 9, 10 };
+-- Build the inventory/bank bag lists like Bagnon does. On WoW Forever there is
+-- an extra equipped bag (the reagent bag, container 5), so
+-- NUM_TOTAL_EQUIPPED_BAG_SLOTS is 5. Treat it as an inventory bag (it is carried
+-- on the player), and start the bank bags above it.
+TBag.NumBags = NUM_TOTAL_EQUIPPED_BAG_SLOTS or NUM_BAG_SLOTS or 4;
+do
+  local numBankBags = NUM_BANKBAGSLOTS or 6;
+  TBag.BAGMAX = TBag.NumBags + numBankBags;
+  TBag.Inv_Bags = { BACKPACK_CONTAINER };
+  for i = TBag.NumBags, 1, -1 do table.insert(TBag.Inv_Bags, i); end
+  TBag.Bnk_Bags = { BANK_CONTAINER };
+  for i = TBag.NumBags + 1, TBag.NumBags + numBankBags do table.insert(TBag.Bnk_Bags, i); end
+end
 TBag.Body_Slots = {
   ["HeadSlot"] = 1,
   ["NeckSlot"] = 2,
@@ -1710,7 +1720,7 @@ function TBag:GetBagFrameName(bag)
   elseif self:Member(self.Inv_Bags, bag) then
     return "TInvacterBag"..(bag-1).."Slot";
   elseif self:Member(self.Bnk_Bags, bag) then
-    return "TBnkFrameBag"..(bag-4);
+    return "TBnkFrameBag"..(bag - TBag.NumBags);
   else
     return "INVALID";
   end

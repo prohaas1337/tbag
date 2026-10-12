@@ -239,6 +239,16 @@
         </Anchors>
       </CheckButton>
 
+      <CheckButton name="TInvacterBag4Slot" inherits="TBag_BagButtonTemplate" id="5">
+        <Anchors>
+          <Anchor point="LEFT" relativeTo="TInvMenuBarBackpackButton" relativePoint="RIGHT">
+            <Offset>
+              <AbsDimension x="3" y="0" />
+            </Offset>
+          </Anchor>
+        </Anchors>
+      </CheckButton>
+
       <CheckButton name="TInvingButton" hidden="false" inherits="TBag_BagButtonTemplate">
         <Anchors>
           <Anchor point="BOTTOMLEFT" relativeTo="TInvMenuBarBackpackButton" relativePoint="BOTTOMRIGHT">
@@ -260,6 +270,7 @@
   <Frame name="TInvainerFrame2" inherits="TBagainerFrameTemplate" id="2"/>
   <Frame name="TInvainerFrame3" inherits="TBagainerFrameTemplate" id="3"/>
   <Frame name="TInvainerFrame4" inherits="TBagainerFrameTemplate" id="4"/>
+  <Frame name="TInvainerFrame5" inherits="TBagainerFrameTemplate" id="5"/>
 
       <Frame name="$parent_RightClickMenu" inherits="UIDropDownMenuTemplate" id="5" hidden="true">
         <Scripts>
