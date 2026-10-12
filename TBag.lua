@@ -3474,7 +3474,10 @@ function TBag.SplitContainerItem(bag, slot, split)
   TBag.STACKSPLIT = 1;
 end
 
-hooksecurefunc('SplitContainerItem', TBag.SplitContainerItem);
+-- Forever has no SplitContainerItem global; only hook it where it exists.
+if type(SplitContainerItem) == "function" then
+  hooksecurefunc('SplitContainerItem', TBag.SplitContainerItem);
+end
 
 function TBag.PickupContainerItem(bag, slot)
   -- Only skip a slot if we have just manually split
@@ -3485,7 +3488,9 @@ function TBag.PickupContainerItem(bag, slot)
   TBag.STACKSPLIT = nil;
 end
 
-hooksecurefunc('PickupContainerItem', TBag.PickupContainerItem);
+if type(PickupContainerItem) == "function" then
+  hooksecurefunc('PickupContainerItem', TBag.PickupContainerItem);
+end
 
 -- array to hold the instructions
 -- don't edit this directly use TBag:ItemMover.

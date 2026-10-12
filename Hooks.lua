@@ -113,7 +113,9 @@ local function CloseAllWindows()
   TInvFrame:Hide()
   TBnkFrame:Hide()
 end
-hooksecurefunc('CloseAllWindows', CloseAllWindows)
+if type(_G['CloseAllWindows']) == "function" then
+  hooksecurefunc('CloseAllWindows', CloseAllWindows)
+end
 
 function Hooks.OpenBag(bag)
   TBag:PrintDEBUG("event: OpenBag("..bag..")")
