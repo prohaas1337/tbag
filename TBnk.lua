@@ -228,12 +228,12 @@ function Bank:UpdateBagGfx()
   TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_ITEMLINK, nil);
 
   for i=1, numSlots do
-    bag = i + 4;
+    bag = i + TBag.NumBags;
     local type = TBag:GetBagType(self.playerid, bag); -- needed for cacheing
     TBag:GetBagFrameTexture(bag):SetVertexColor(1.0,1.0,1.0, 1.0);
   end
   for i=numSlots+1, NUM_BANKBAGSLOTS do
-    bag = i + 4;
+    bag = i + TBag.NumBags;
     TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGTYPE, 0);
     TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGFREE, 0);
     TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGSIZE, 0);
@@ -241,7 +241,7 @@ function Bank:UpdateBagGfx()
     TBag:GetBagFrameTexture(bag):SetVertexColor(1.0,0.1,0.1, 1.0);
   end
   for i=1, NUM_BANKBAGSLOTS do
-    bag = i + 4;
+    bag = i + TBag.NumBags;
 
     TBag:UpdateBagColors(bag);
 
