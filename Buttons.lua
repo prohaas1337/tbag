@@ -560,8 +560,10 @@ function BagButton:OnClick(button,down,drag)
   end
 
   -- Empty bag slot do nothing, has to follow the above to allow equiping
-  -- of bags.
-  if bag > 0 and (not itm[TBag.I_ITEMLINK] or itm[TBag.I_ITEMLINK] == "") then
+  -- of bags. A bag that has slots is not empty even if its equipped-item link
+  -- wasn't stored (e.g. the Forever profession bag), so still let it filter.
+  if bag > 0 and (not itm[TBag.I_ITEMLINK] or itm[TBag.I_ITEMLINK] == "")
+     and (GetContainerNumSlots(bag) or 0) == 0 then
     self:SetChecked(not self:GetChecked())
     return
   end
