@@ -351,11 +351,10 @@ function TBag:EnableLine(frame, optsframename, lineheight, sliderheight, element
         else
           tmpframe:SetJustifyH("LEFT");
         end
-        if (e["alignv"] ~= nil) then
-          tmpframe:SetJustifyV(e["alignv"]); -- valid values: TOP, BOTTOM,  CENTER?
-        else
-          tmpframe:SetJustifyV("CENTER");
-        end
+        -- Vertical justify on Forever is TOP/MIDDLE/BOTTOM; "CENTER" is invalid.
+        local alignv = e["alignv"] or "MIDDLE";
+        if alignv == "CENTER" then alignv = "MIDDLE"; end
+        tmpframe:SetJustifyV(alignv);
         if (e["color"] ~= nil) then
           --tmpframe:SetVertexColor(e["color"][1], e["color"][2], e["color"][3], fade);
           tmpframe:SetTextColor(e["color"][1], e["color"][2], e["color"][3]);

@@ -1376,8 +1376,11 @@ function Inv:UpdateWindow(resort_req)
 
   -- Relink the button map
   for _,bag in ipairs(self.bags) do
-    for slot = 1, TBag:GetBagMaxItems(bag) do
-      TBag.BUTTONS[TBag:GetBagItemButtonName(bag, slot)] = TInvItm[self.playerid][bag][slot]
+    local bagcache = TInvItm[self.playerid][bag]
+    if bagcache then
+      for slot = 1, TBag:GetBagMaxItems(bag) do
+        TBag.BUTTONS[TBag:GetBagItemButtonName(bag, slot)] = bagcache[slot]
+      end
     end
   end
 
