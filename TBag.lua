@@ -2237,9 +2237,13 @@ function TBag:SetInventoryItem(tt, playerid, itemlink, bag, slot, suffix)
     -- Inventory and being at the bank is always safe
     if (self:Member(self.Inv_Bags, bag) or TBnkFrame.atbank == 1) then
       if (bag == BANK_CONTAINER) or (bag == REAGENTBANK_CONTAINER) then
-        hasCooldown, repairCost = tt:SetInventoryItem("player", self:GetInvSlotID(bag, slot));
+        if tt.SetInventoryItem then
+          hasCooldown, repairCost = tt:SetInventoryItem("player", self:GetInvSlotID(bag, slot));
+        end
       else
-        hasCooldown, repairCost = tt:SetBagItem(bag, slot);
+        if tt.SetBagItem then
+          hasCooldown, repairCost = tt:SetBagItem(bag, slot);
+        end
       end
     else
       -- otherwise, just set a link.  Not as good, but safe
@@ -2277,7 +2281,9 @@ function TBag:MakeToolTipStr(playerid, itemlink, bag, slot, mailitem, attach, su
   end
 
   if (not tt) then
-    tt = CreateFrame("GameTooltip","TBag_tt");
+    -- Inherit GameTooltipTemplate so the Set* scanning methods exist on
+    -- mainline-style clients (Forever); a bare GameTooltip lacks them there.
+    tt = CreateFrame("GameTooltip","TBag_tt",UIParent,"GameTooltipTemplate");
     -- Allow tooltip set methods to dynamically add new lines based on these
     tt:AddFontStrings(
       tt:CreateFontString("$parentTextLeft1", nil, "GameTooltipText"),
