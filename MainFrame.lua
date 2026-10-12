@@ -106,7 +106,7 @@ function MainFrame:OnHide()
 
   if self.atbank and self.atbank == 1 then
     self.atbank = 0
-    CloseBankFrame()
+    if CloseBankFrame then CloseBankFrame() end
   end
 
   -- Always reset to the global player for event processing

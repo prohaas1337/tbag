@@ -209,6 +209,7 @@ function ItemButton.UpdateCooldown(self, itm, mainFrame)
 end
 
 function ItemButton.Update(self)
+  if not self then return end
   local mainFrame = self:GetParent():GetParent()
   local cfg = mainFrame.cfg
   local playerid = mainFrame.playerid
