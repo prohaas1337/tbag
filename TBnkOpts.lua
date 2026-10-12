@@ -104,6 +104,8 @@ function TBnk_Options_InitWindow()
     TBnk_OptsFrame:SetWidth( TBnk_Options_FRAME_WIDTH );
     TBnk_OptsFrame:SetHeight( TBnk_Options_FRAME_HEIGHT );
 
+    TBag:ApplyBackdrop(TBnk_OptsFrame);
+    if TBnk_OptsFrame.SetBackdropColor then
     TBnk_OptsFrame:SetBackdropColor(
     --  TBag_GetColor(TBnkCfg, "bkgr_"..TBAG_MAIN_BAR)
     TBnkFrame.cfg["bar_colors_"..TBag.MAIN_BAR.."_background_r"],
@@ -116,6 +118,7 @@ function TBnk_Options_InitWindow()
     TBnkFrame.cfg["bar_colors_"..TBag.MAIN_BAR.."_border_g"],
     TBnkFrame.cfg["bar_colors_"..TBag.MAIN_BAR.."_border_b"],
     TBnkFrame.cfg["bar_colors_"..TBag.MAIN_BAR.."_border_a"] );
+    end
 
     TBnk_Options_UpdateWindow();
 end

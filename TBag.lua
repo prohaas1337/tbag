@@ -172,6 +172,32 @@ local L = TBag.LOCALE;
 -- Main Bag and Item arrays
 -----------------------------------------------------------------------
 
+-- WoW Forever does not define these legacy bag-container globals; pin them to
+-- their mainline values so the bank/backpack constants, Bnk_Bags and the SetID
+-- calls work. BANK_CONTAINER being nil was breaking BAGMIN and SetID(nil).
+BACKPACK_CONTAINER = BACKPACK_CONTAINER or 0;
+BANK_CONTAINER = BANK_CONTAINER or -1;
+
+-- Forever rejects the <Backdrop> XML element, so frames have no native backdrop
+-- or backdrop methods. Apply one in Lua via the mainline BackdropTemplate mixin.
+TBag.FRAME_BACKDROP = {
+  bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+  edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+  tile = true, tileSize = 4, edgeSize = 4,
+  insets = { left = 2, right = 2, top = 2, bottom = 2 },
+};
+
+function TBag:ApplyBackdrop(frame)
+  if not frame then return end
+  if not frame.SetBackdrop and BackdropTemplateMixin and Mixin then
+    Mixin(frame, BackdropTemplateMixin);
+  end
+  if frame.SetBackdrop and not frame.tbagBackdropSet then
+    frame:SetBackdrop(self.FRAME_BACKDROP);
+    frame.tbagBackdropSet = true;
+  end
+end
+
 TBag.BAGMIN = BANK_CONTAINER;
 TBag.BAGMAX = 10;
 TBag.MAX_REAGENTBANK_ITEMS = 98 -- has to be a constant since game can't tell us in time
@@ -1921,6 +1947,8 @@ end
 
 
 function TBag:ColorFrame(cfg, barframe, bar)
+  self:ApplyBackdrop(barframe);
+  if not barframe.SetBackdropColor then return end
   local r, g, b, a = self:GetColor(cfg, "bkgr_"..bar)
   barframe:SetBackdropColor(r, g, b, a);
   r, g, b, a = self:GetColor(cfg, "brdr_"..bar)

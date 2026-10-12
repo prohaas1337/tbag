@@ -5,17 +5,6 @@
     <Size>
       <AbsDimension x="128" y="17"/>
     </Size>
-    <Backdrop bgFile="Interface\Buttons\UI-SliderBar-Background" edgeFile="Interface\Buttons\UI-SliderBar-Border" tile="true">
-      <EdgeSize>
-        <AbsValue val="8"/>
-      </EdgeSize>
-      <TileSize>
-        <AbsValue val="8"/>
-      </TileSize>
-      <BackgroundInsets>
-        <AbsInset left="3" right="3" top="6" bottom="6"/>
-      </BackgroundInsets>
-    </Backdrop>
     <Scripts>
       <OnEnter>
         local this = self or _G.this     
@@ -130,17 +119,6 @@
       </Anchor>
     </Anchors>
 
-    <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-      <EdgeSize>
-        <AbsValue val="8"/>
-      </EdgeSize>
-      <TileSize>
-        <AbsValue val="8"/>
-      </TileSize>
-      <BackgroundInsets>
-        <AbsInset left="2" right="2" top="2" bottom="2"/>
-      </BackgroundInsets>
-    </Backdrop>
 
     <Frames>
       <Slider name="TInv_OptsFrame_ScrollBar" inherits="UIPanelScrollBarTemplate">

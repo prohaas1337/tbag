@@ -2,17 +2,6 @@
   <Script file="MainFrame.lua"/>
 
   <Frame name="TBag_MainTemplate" toplevel="true" frameStrata="MEDIUM" movable="true" enableMouse="true" hidden="true" parent="UIParent" virtual="true">
-    <Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-      <EdgeSize>
-        <AbsValue val="4"/>
-      </EdgeSize>
-      <TileSize>
-        <AbsValue val="4"/>
-      </TileSize>
-      <BackgroundInsets>
-        <AbsInset left="2" right="2" top="2" bottom="2"/>
-      </BackgroundInsets>
-    </Backdrop>
     <Frames>
       <Button name="$parent_ColumnsAdd" inherits="TBag_ColumnsButtonTemplate"/>
       <Button name="$parent_ColumnsDel" inherits="TBag_ColumnsButtonTemplate"/>
