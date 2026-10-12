@@ -494,7 +494,7 @@ function BagButton:OnEnter()
   if TBag:Member(TBag.Bnk_Bags,bag) then
     local numSlots = TBag:GetNumBankSlots(mainFrame.playerid)
 
-    if bag <= numSlots + 4 then
+    if bag <= numSlots + TBag.NumBags then
       SetItemButtonTextureVertexColor(self, 1,0, 1.0, 1.0, 1.0)
       GameTooltip:AddLine(BANK_BAG, 1.0, 1.0, 1.0)
     else
@@ -535,9 +535,11 @@ function BagButton:OnClick(button,down,drag)
     return
   end
 
-  -- Unpurchased bag slot
+  -- Unpurchased bank bag slot. Only applies to bank bags; on Forever
+  -- GetNumBankSlots is 0, so the old "bag > numSlots + 4" wrongly matched the
+  -- inventory profession bag (5) and bailed out before highlighting.
   local numSlots = TBag:GetNumBankSlots(mainFrame.playerid)
-  if bag > numSlots + 4 then
+  if TBag:Member(TBag.Bnk_Bags, bag) and bag > numSlots + TBag.NumBags then
     self:SetChecked(not self:GetChecked())
     -- Needed to make the CONFIRM_BUY_BANK_SLOT popup work right
     BankFrame.nextSlotCost = GetBankSlotCost(numSlots)
