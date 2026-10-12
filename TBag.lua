@@ -220,6 +220,16 @@ if C_Item then
   GetItemIcon         = GetItemIcon         or C_Item.GetItemIconByID;
 end
 
+-- Some events TBag registers (e.g. PLAYERBANKBAGSLOTS_CHANGED) do not exist on
+-- Forever and the native RegisterEvent errors on them. Swallow those so event
+-- setup doesn't abort.
+do
+  local _RegisterEvent = TBag.RegisterEvent;
+  function TBag.RegisterEvent(frame, event, ...)
+    return select(1, pcall(_RegisterEvent, frame, event, ...));
+  end
+end
+
 
 -- or backdrop methods. Apply one in Lua via the mainline BackdropTemplate mixin.
 TBag.FRAME_BACKDROP = {
@@ -568,13 +578,23 @@ function TBag:AliasButtonChildren(button)
   if not _G[name.."NormalTexture"] and button.GetNormalTexture then
     _G[name.."NormalTexture"] = button:GetNormalTexture();
   end
-  if not _G[name.."IconTexture"] then
-    local icon = button.icon or button.Icon;
-    if not icon and button.CreateTexture then
-      icon = button:CreateTexture(name.."IconTexture", "ARTWORK");
-      icon:SetAllPoints();
+  -- Ensure button.icon exists so Blizzard's SetItemButtonTexture works, and
+  -- expose it under the classic global name TBag looks up.
+  if not button.icon then
+    button.icon = button.Icon;
+    if not button.icon and button.CreateTexture then
+      button.icon = button:CreateTexture(name.."IconTexture", "ARTWORK");
+      button.icon:SetAllPoints();
     end
-    _G[name.."IconTexture"] = icon;
+  end
+  if not _G[name.."IconTexture"] then
+    _G[name.."IconTexture"] = button.icon;
+  end
+  if not button.Count and button.CreateFontString then
+    -- Blizzard's SetItemButtonCount needs button.Count; Forever buttons lack it.
+    button.Count = button:CreateFontString(name.."Count", "OVERLAY", "GameFontNormal");
+    button.Count:SetJustifyH("RIGHT");
+    button.Count:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -5, 2);
   end
   if not _G[name.."Count"] then
     _G[name.."Count"] = button.Count;
