@@ -165,15 +165,12 @@ function Bank:init(reset)
   end
 
   if (cfg["show_bagbuttons"] == 0) then
-    TBnkFrameBag1:Hide();
-    TBnkFrameBag2:Hide();
-    TBnkFrameBag3:Hide();
-    TBnkFrameBag4:Hide();
-    TBnkFrameBag5:Hide();
-    TBnkFrameBag6:Hide();
-    TBnkFrameBag7:Hide();
+    for i = 1, 7 do local b = _G["TBnkFrameBag"..i]; if b then b:Hide(); end end
     TBnkFrameBagBank:Hide();
-    TBnkFrameBagReagent:Hide();
+    if TBnkFrameBagReagent then TBnkFrameBagReagent:Hide(); end
+  else
+    for i = 1, 7 do local b = _G["TBnkFrameBag"..i]; if b then b:Show(); end end
+    TBnkFrameBagBank:Show();
   end
   if (cfg["show_userdropdown"] == 0) then
     TBnk_UserDropdown:Hide();

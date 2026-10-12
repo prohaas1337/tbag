@@ -190,6 +190,16 @@ function Inv:init(reset)
     TInvacterBag3Slot:Hide();
     TInvMenuBarBackpackButton:Hide();
     TInvingButton:Hide();
+    if TInvacterBag4Slot then TInvacterBag4Slot:Hide(); end
+  else
+    -- Buttons made from the modern ContainerFrameItemButtonTemplate start hidden
+    -- on Forever, so show them explicitly.
+    TInvacterBag0Slot:Show();
+    TInvacterBag1Slot:Show();
+    TInvacterBag2Slot:Show();
+    TInvacterBag3Slot:Show();
+    TInvMenuBarBackpackButton:Show();
+    if TInvacterBag4Slot then TInvacterBag4Slot:Show(); end
   end
   if (cfg["show_searchbox"] == 0) then
     TInv_SearchBox:Hide();
