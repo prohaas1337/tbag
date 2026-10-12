@@ -569,7 +569,12 @@ function TBag:AliasButtonChildren(button)
     _G[name.."NormalTexture"] = button:GetNormalTexture();
   end
   if not _G[name.."IconTexture"] then
-    _G[name.."IconTexture"] = button.icon or button.Icon;
+    local icon = button.icon or button.Icon;
+    if not icon and button.CreateTexture then
+      icon = button:CreateTexture(name.."IconTexture", "ARTWORK");
+      icon:SetAllPoints();
+    end
+    _G[name.."IconTexture"] = icon;
   end
   if not _G[name.."Count"] then
     _G[name.."Count"] = button.Count;
@@ -1895,7 +1900,9 @@ end
 
 
 function TBag:GetNumBankSlots(playerid)
-  local numSlots, full = GetNumBankSlots();
+  local numSlots, full = 0, nil;
+  if GetNumBankSlots then numSlots, full = GetNumBankSlots(); end
+  numSlots = numSlots or 0;
   if (playerid == self.PLAYERID) and (TBnkFrame.atbank == 1) then
     self:SetPlayerInfo(playerid, self.S_BANKSLOTS, numSlots);
     if (full) then
