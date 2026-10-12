@@ -558,6 +558,27 @@ function TBag:ClearItmCache(itmcache, bagarr)
   return itmcache;
 end
 
+-- Mainline-style buttons (Forever) expose their textures/fontstrings as
+-- parentKeys or methods instead of the global "<name>Suffix" names TBag's
+-- Classic rendering code looks up. Alias the ones it needs so that code works
+-- unchanged. ("<name>_bkgr"/"_EditButton" are TBag's own and already global.)
+function TBag:AliasButtonChildren(button)
+  local name = button and button.GetName and button:GetName();
+  if not name then return end
+  if not _G[name.."NormalTexture"] and button.GetNormalTexture then
+    _G[name.."NormalTexture"] = button:GetNormalTexture();
+  end
+  if not _G[name.."IconTexture"] then
+    _G[name.."IconTexture"] = button.icon or button.Icon;
+  end
+  if not _G[name.."Count"] then
+    _G[name.."Count"] = button.Count;
+  end
+  if not _G[name.."IconQuestTexture"] then
+    _G[name.."IconQuestTexture"] = button.IconQuestTexture;
+  end
+end
+
 function TBag:CreateDummyBag(bag, template)
   local dbag = _G[self:GetDummyBagFrameName(bag)];
 
@@ -572,6 +593,7 @@ function TBag:CreateDummyBag(bag, template)
         button:SetID(slot);
         button:Hide();
         button:SetFrameLevel(level)
+        self:AliasButtonChildren(button)
       end
     end
   end
@@ -1803,11 +1825,11 @@ function TBag:SetRarityColor(rarity, name)
   if (rarity) then
     local r, g, b = GetItemQualityColor(rarity);
 
-    bkgr:SetVertexColor(r, g, b, 1);
-    normal:SetVertexColor(r, g, b, 0.5);
+    if bkgr then bkgr:SetVertexColor(r, g, b, 1); end
+    if normal then normal:SetVertexColor(r, g, b, 0.5); end
   else
-    bkgr:SetVertexColor(0.05,0.05,0.05,1);
-    normal:SetVertexColor(0.05,0.05,0.05, 0.5);
+    if bkgr then bkgr:SetVertexColor(0.05,0.05,0.05,1); end
+    if normal then normal:SetVertexColor(0.05,0.05,0.05, 0.5); end
   end
 end
 
@@ -3129,8 +3151,10 @@ function TBag:AssignButtonsToFrame(mainFrame, barnum, frame, width, height)
 
     -- resize frame texture (this is the little border)
     local frame_normaltexture = _G[buttonname.."NormalTexture"]
-    frame_normaltexture:SetWidth(mainFrame.BGF_WIDTH)
-    frame_normaltexture:SetHeight(mainFrame.BGF_HEIGHT)
+    if frame_normaltexture then
+      frame_normaltexture:SetWidth(mainFrame.BGF_WIDTH)
+      frame_normaltexture:SetHeight(mainFrame.BGF_HEIGHT)
+    end
 
     -- Relink the button map
     self.BUTTONS[buttonname] = itm
@@ -3155,8 +3179,10 @@ function TBag:AssignButtonsToFrame(mainFrame, barnum, frame, width, height)
       mainFrame.BGF_WIDTH, mainFrame.BGF_HEIGHT)
 
     local frame_normaltexture = _G[buttonname.."NormalTexture"]
-    frame_normaltexture:SetWidth(mainFrame.BGF_WIDTH)
-    frame_normaltexture:SetHeight(mainFrame.BGF_HEIGHT)
+    if frame_normaltexture then
+      frame_normaltexture:SetWidth(mainFrame.BGF_WIDTH)
+      frame_normaltexture:SetHeight(mainFrame.BGF_HEIGHT)
+    end
 
     local tmpframe = self:GetStock(buttonname)
     tmpframe:SetText(barnum)

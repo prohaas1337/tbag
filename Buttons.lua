@@ -353,6 +353,7 @@ local BarButton = TBag.BarButton
 
 function BarButton:OnLoad()
   self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  TBag:AliasButtonChildren(self)
 
   -- Stock frame from ItemButtonTemplate is used here for
   -- the bar number.  Adjust it to center the number.
@@ -429,6 +430,7 @@ local BagButton = TBag.BagButton
 function BagButton:OnLoad()
   self:RegisterForDrag("LeftButton")
   self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+  TBag:AliasButtonChildren(self)
 
   -- Stock frame from ItemButtonTemplate is used here for
   -- the counts on the bag.  Adjust it to center the numbers.
