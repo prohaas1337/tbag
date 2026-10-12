@@ -1626,6 +1626,26 @@ function TBag:GetBagIdxName(bag)
   end
 end
 
+-- The number/stack FontString that old ItemButtonTemplate exposed as the
+-- global "<name>Stock" was removed on mainline-style clients (Forever), which
+-- only keep "<name>Count"/.Count. TBag relies on "Stock" for bag and bar
+-- numbers and the new-item marker, so fetch it, creating one when it is absent.
+function TBag:GetStock(frameOrName)
+  local frame, name
+  if type(frameOrName) == "table" then
+    frame, name = frameOrName, frameOrName:GetName()
+  else
+    name, frame = frameOrName, _G[frameOrName]
+  end
+  if not frame or not name then return nil end
+  local stock = _G[name.."Stock"]
+  if not stock then
+    stock = frame:CreateFontString(name.."Stock", "OVERLAY")
+    stock:SetFont("Fonts\\ARIALN.TTF", 18, "OUTLINE")
+  end
+  return stock
+end
+
 function TBag:GetBagNumName(bag)
   -- Use the stock frame for the counts on the bag buttons
   return self:GetBagFrameName(bag).."Stock"
@@ -1665,7 +1685,7 @@ function TBag:GetBagFrame(bag)
 end
 
 function TBag:GetBagNumFrame(bag)
-  return _G[self:GetBagNumName(bag)];
+  return self:GetStock(self:GetBagFrameName(bag));
 end
 
 function TBag:GetBagMaxItems(bag)
@@ -3057,7 +3077,7 @@ function TBag:AssignButtonsToFrame(mainFrame, barnum, frame, width, height)
     frame_normaltexture:SetWidth(mainFrame.BGF_WIDTH)
     frame_normaltexture:SetHeight(mainFrame.BGF_HEIGHT)
 
-    local tmpframe = _G[buttonname.."Stock"]
+    local tmpframe = self:GetStock(buttonname)
     tmpframe:SetText(barnum)
     tmpframe = _G[buttonname.."_bkgr"]
     tmpframe:SetVertexColor(1,0,0.25,0.8)

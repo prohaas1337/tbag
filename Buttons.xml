@@ -38,7 +38,7 @@
     </Layers>
     <Scripts>
       <OnLoad>
-        ContainerFrameItemButton_OnLoad(self);
+        if ContainerFrameItemButton_OnLoad then ContainerFrameItemButton_OnLoad(self); end
         self.UpdateTooltip = TBag.ItemButton.OnEnter;
         local newitem = _G[self:GetName() .. "NewItemTexture"]
         if newitem then

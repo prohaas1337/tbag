@@ -219,7 +219,7 @@ function ItemButton.Update(self)
   local frame_texture = _G[framename.."IconTexture"]
   local frame_font = _G[framename.."Count"]
   local frame_bkgr = _G[framename.."_bkgr"]
-  local frame_stock = _G[framename.."Stock"]
+  local frame_stock = TBag:GetStock(self)
   local editFrame = _G[framename.."_EditButton"]
   local questTexture = _G[framename.."IconQuestTexture"]
 
@@ -356,13 +356,15 @@ function BarButton:OnLoad()
 
   -- Stock frame from ItemButtonTemplate is used here for
   -- the bar number.  Adjust it to center the number.
-  local stock = _G[self:GetName().."Stock"]
-  stock:SetFont("Fonts\\ARIALN.TTF", 18, "OUTLINE")
-  stock:SetTextColor(1,0,0.25,1)
-  stock:SetJustifyH("CENTER")
-  stock:ClearAllPoints()
-  stock:SetAllPoints()
-  stock:Show()
+  local stock = TBag:GetStock(self)
+  if stock then
+    stock:SetFont("Fonts\\ARIALN.TTF", 18, "OUTLINE")
+    stock:SetTextColor(1,0,0.25,1)
+    stock:SetJustifyH("CENTER")
+    stock:ClearAllPoints()
+    stock:SetAllPoints()
+    stock:Show()
+  end
 end
 
 
@@ -430,12 +432,14 @@ function BagButton:OnLoad()
 
   -- Stock frame from ItemButtonTemplate is used here for
   -- the counts on the bag.  Adjust it to center the numbers.
-  local stock = _G[self:GetName().."Stock"]
-  stock:SetFont("Fonts\\ARIALN.TTF", 18, "OUTLINE")
-  stock:SetJustifyH("CENTER")
-  stock:ClearAllPoints()
-  stock:SetAllPoints()
-  stock:Show()
+  local stock = TBag:GetStock(self)
+  if stock then
+    stock:SetFont("Fonts\\ARIALN.TTF", 18, "OUTLINE")
+    stock:SetJustifyH("CENTER")
+    stock:ClearAllPoints()
+    stock:SetAllPoints()
+    stock:Show()
+  end
 end
 
 function BagButton:OnEnter()
