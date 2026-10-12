@@ -177,6 +177,10 @@ local L = TBag.LOCALE;
 -- calls work. BANK_CONTAINER being nil was breaking BAGMIN and SetID(nil).
 BACKPACK_CONTAINER = BACKPACK_CONTAINER or 0;
 BANK_CONTAINER = BANK_CONTAINER or -1;
+-- Also undefined on Forever: MAX_CONTAINER_ITEMS (used as the per-bag button
+-- upper bound) and NUM_BANKBAGSLOTS (TBag has 6 bank bag buttons: ids 5-10).
+MAX_CONTAINER_ITEMS = MAX_CONTAINER_ITEMS or 36;
+NUM_BANKBAGSLOTS = NUM_BANKBAGSLOTS or 6;
 
 -- Forever rejects the <Backdrop> XML element, so frames have no native backdrop
 -- or backdrop methods. Apply one in Lua via the mainline BackdropTemplate mixin.
