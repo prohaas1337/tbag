@@ -340,8 +340,13 @@ function TBag:Init()
   -- Cleanout old trash
   self:CleanConfig();
 
-  -- And reset the keybinding, if need be
-  LoadAddOn("Blizzard_BindingUI");
+  -- And reset the keybinding, if need be. LoadAddOn is replaced by
+  -- C_AddOns.LoadAddOn on mainline-style clients (Forever).
+  if C_AddOns and C_AddOns.LoadAddOn then
+    C_AddOns.LoadAddOn("Blizzard_BindingUI");
+  elseif LoadAddOn then
+    LoadAddOn("Blizzard_BindingUI");
+  end
 end
 
 -----------------------------------------------------------------------

@@ -32,7 +32,7 @@
       </Frame>
     </Frames>
     <Layers>
-      <Layer frameStrata="BORDER">
+      <Layer>
         <Texture name="$parent_bkgr" inherits="TBag_ButtonBkgrTemplate"/>
       </Layer>
     </Layers>
@@ -58,10 +58,10 @@
     </Scripts>
   </Button>
 
-  <Button name="TBag_BarButtonTemplate" inherits="ItemButtonTemplate" hidden="true" virtual="true">
+  <Button name="TBag_BarButtonTemplate" inherits="ContainerFrameItemButtonTemplate" hidden="true" virtual="true">
     <Size><AbsDimension x="40" y="40"/></Size>
     <Layers>
-      <Layer frameStrata="BORDER">
+      <Layer>
         <Texture name="$parent_bkgr" inherits="TBag_ButtonBkgrTemplate"/>
       </Layer>
     </Layers>
@@ -81,7 +81,7 @@
     </Scripts>
   </Button>
 
-  <CheckButton name="TBag_BagButtonTemplate" inherits="ItemButtonTemplate" virtual="true">
+  <CheckButton name="TBag_BagButtonTemplate" inherits="ContainerFrameItemButtonTemplate" virtual="true">
     <Frames>
       <Frame name="$parentSpotlight" setAllPoints="true">
         <Layers>
@@ -90,7 +90,7 @@
           </Layer>
         </Layers>
       </Frame>
-      <Model name="$parentItemAnim" inherits="ItemAnimTemplate" setAllPoints="true">
+      <Model name="$parentItemAnim" setAllPoints="true">
         <Scripts>
           <OnEvent>
             TBag.BagButton.ItemAnimOnEvent(self,event,...)
