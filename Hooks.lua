@@ -126,7 +126,7 @@ function Hooks.OpenBag(bag)
     mainFrame = TBnkFrame
   end
 
-  if mainFrame.cfg["show_Bag"..bag] ~= 1 then
+  if mainFrame.cfg and mainFrame.cfg["show_Bag"..bag] ~= 1 then
     TBag:GetBagFrame(bag):SetChecked(true)
   end
   mainFrame:Show()

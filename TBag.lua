@@ -182,6 +182,32 @@ BANK_CONTAINER = BANK_CONTAINER or -1;
 MAX_CONTAINER_ITEMS = MAX_CONTAINER_ITEMS or 36;
 NUM_BANKBAGSLOTS = NUM_BANKBAGSLOTS or 6;
 
+-- On mainline-style clients (Forever) the container functions live in the
+-- C_Container namespace rather than as globals, and C_Container.GetContainerItemInfo
+-- returns a single table instead of multiple values. Re-expose the globals TBag
+-- uses, converting the item-info table back to the classic multiple returns.
+if C_Container then
+  GetContainerNumSlots     = GetContainerNumSlots     or C_Container.GetContainerNumSlots;
+  GetContainerNumFreeSlots = GetContainerNumFreeSlots or C_Container.GetContainerNumFreeSlots;
+  GetContainerItemLink     = GetContainerItemLink     or C_Container.GetContainerItemLink;
+  GetContainerItemCooldown = GetContainerItemCooldown or C_Container.GetContainerItemCooldown;
+  PickupContainerItem      = PickupContainerItem      or C_Container.PickupContainerItem;
+  SplitContainerItem       = SplitContainerItem       or C_Container.SplitContainerItem;
+  ContainerIDToInventoryID = ContainerIDToInventoryID or C_Container.ContainerIDToInventoryID;
+  if not GetContainerItemInfo and C_Container.GetContainerItemInfo then
+    local raw = C_Container.GetContainerItemInfo;
+    GetContainerItemInfo = function(bag, slot)
+      local a, b, c, d, e, f, g, h, i, j, k = raw(bag, slot);
+      if type(a) == "table" then
+        local t = a;
+        return t.iconFileID, t.stackCount, t.isLocked, t.quality, t.isReadable,
+               t.hasLoot, t.hyperlink, t.isFiltered, t.hasNoValue, t.itemID, t.isBound;
+      end
+      return a, b, c, d, e, f, g, h, i, j, k;
+    end
+  end
+end
+
 -- Forever rejects the <Backdrop> XML element, so frames have no native backdrop
 -- or backdrop methods. Apply one in Lua via the mainline BackdropTemplate mixin.
 TBag.FRAME_BACKDROP = {
