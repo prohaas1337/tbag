@@ -36,21 +36,25 @@ local function RegisterForeverHooks()
   foreverHooked = true
 
   local function closeBlizzardContainers()
+    -- Modern combined-bags frame (The War Within / Forever)
+    local combined = _G["ContainerFrameCombinedBags"]
+    if combined and combined:IsShown() then pcall(combined.Hide, combined) end
+    -- Classic-style individual container frames
     for i = 1, NUM_CONTAINER_FRAMES or 13 do
       local f = _G["ContainerFrame"..i]
       if f and f:IsShown() then pcall(f.Hide, f) end
     end
   end
 
-  -- Toggle / open all bags → close any Blizzard containers that opened,
-  -- then toggle TBag's inventory frame.
-  for _, fn in ipairs({"ToggleAllBags", "ToggleBackpack"}) do
-    if type(_G[fn]) == "function" then
-      hooksecurefunc(fn, function()
-        closeBlizzardContainers()
-        TInvFrame:Toggle()
-      end)
-    end
+  -- Hook only ToggleAllBags (the B-key function).  Do NOT also hook
+  -- ToggleBackpack here: on Forever ToggleAllBags calls ToggleBackpack
+  -- internally, so hooking both would double-toggle TInvFrame on each
+  -- keypress and leave it in its original (closed) state.
+  if type(_G["ToggleAllBags"]) == "function" then
+    hooksecurefunc("ToggleAllBags", function()
+      closeBlizzardContainers()
+      TInvFrame:Toggle()
+    end)
   end
 
   if type(_G["OpenBackpack"]) == "function" then
@@ -64,16 +68,6 @@ local function RegisterForeverHooks()
     hooksecurefunc("CloseBackpack", function()
       if not inMerchantFrameOnHide then
         TInvFrame:Hide()
-      end
-    end)
-  end
-
-  -- Individual bag slot buttons on the action bar
-  if type(_G["ToggleBag"]) == "function" then
-    hooksecurefunc("ToggleBag", function(bag)
-      closeBlizzardContainers()
-      if TBag:Member(TInvFrame.bags, bag) then
-        TInvFrame:Show()
       end
     end)
   end
