@@ -1466,11 +1466,14 @@ function Bank:SetReplaceBank()
   if BankFrame_Saved == nil then
     BankFrame_Saved = BankFrame;
   end
+  -- On Forever the BankFrame is part of the protected modern bank UI; Hide()
+  -- and UnregisterEvent() on it are blocked from addon code.  Swallow errors
+  -- the same way RegisterEvent is guarded elsewhere in this file.
   if BankFrame_Saved:IsVisible() then
-    BankFrame_Saved:Hide();
+    pcall(BankFrame_Saved.Hide, BankFrame_Saved);
   end
-  BankFrame_Saved:UnregisterEvent("BANKFRAME_OPENED");
-  BankFrame_Saved:UnregisterEvent("BANKFRAME_CLOSED");
+  pcall(BankFrame_Saved.UnregisterEvent, BankFrame_Saved, "BANKFRAME_OPENED");
+  pcall(BankFrame_Saved.UnregisterEvent, BankFrame_Saved, "BANKFRAME_CLOSED");
 end
 
 

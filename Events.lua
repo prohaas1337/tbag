@@ -97,6 +97,12 @@ function TBag:PLAYER_LEAVING_WORLD()
 end
 
 function TBag:BANKFRAME_OPENED()
+  -- If UnregisterEvent on BankFrame was blocked, BankFrame may have shown
+  -- itself.  Try to close it here while still inside the hardware event so
+  -- the call is more likely to be allowed on protected-frame builds.
+  if BankFrame and BankFrame:IsShown() then
+    pcall(BankFrame.Hide, BankFrame);
+  end
   TBnkFrame.atbank = 1
   TBnkFrame:Show()
 end
