@@ -27,12 +27,64 @@ Hooks.savedfuncs = {}
 
 local inMerchantFrameOnHide = false
 
+-- On WoW Forever the global bag functions are protected; replacing them via
+-- setglobal taints the secure bank-open chain.  Instead, install permanent
+-- post-hooks with hooksecurefunc: the original runs first, then we intercept.
+local foreverHooked = false
+local function RegisterForeverHooks()
+  if foreverHooked then return end
+  foreverHooked = true
+
+  local function closeBlizzardContainers()
+    for i = 1, NUM_CONTAINER_FRAMES or 13 do
+      local f = _G["ContainerFrame"..i]
+      if f and f:IsShown() then pcall(f.Hide, f) end
+    end
+  end
+
+  -- Toggle / open all bags → close any Blizzard containers that opened,
+  -- then toggle TBag's inventory frame.
+  for _, fn in ipairs({"ToggleAllBags", "ToggleBackpack"}) do
+    if type(_G[fn]) == "function" then
+      hooksecurefunc(fn, function()
+        closeBlizzardContainers()
+        TInvFrame:Toggle()
+      end)
+    end
+  end
+
+  if type(_G["OpenBackpack"]) == "function" then
+    hooksecurefunc("OpenBackpack", function()
+      closeBlizzardContainers()
+      TInvFrame:Show()
+    end)
+  end
+
+  if type(_G["CloseBackpack"]) == "function" then
+    hooksecurefunc("CloseBackpack", function()
+      if not inMerchantFrameOnHide then
+        TInvFrame:Hide()
+      end
+    end)
+  end
+
+  -- Individual bag slot buttons on the action bar
+  if type(_G["ToggleBag"]) == "function" then
+    hooksecurefunc("ToggleBag", function(bag)
+      closeBlizzardContainers()
+      if TBag:Member(TInvFrame.bags, bag) then
+        TInvFrame:Show()
+      end
+    end)
+  end
+end
+
 function Hooks.Register(reg)
-  -- On WoW Forever (project 18) the global bag functions (OpenBag, CloseBag,
-  -- ToggleBag, etc.) are protected.  Replacing them via setglobal taints the
-  -- secure bank-open call chain and produces the ADDON_ACTION_BLOCKED error.
-  -- Skip the replacement hooks; bank is handled via BANKFRAME_OPENED events.
-  if WOW_PROJECT_ID == 18 then return end
+  if WOW_PROJECT_ID == 18 then
+    -- Use hooksecurefunc-based hooks instead of the setglobal replacements.
+    if reg == Hooks.REGISTER then RegisterForeverHooks() end
+    return
+  end
 
   local funcs = Hooks.funcs
   local scripts = Hooks.scripts
