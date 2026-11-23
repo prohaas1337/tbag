@@ -229,29 +229,33 @@ function Bank:UpdateBagGfx()
 
   for i=1, numSlots do
     bag = i + TBag.NumBags;
-    local type = TBag:GetBagType(self.playerid, bag); -- needed for cacheing
-    TBag:GetBagFrameTexture(bag):SetVertexColor(1.0,1.0,1.0, 1.0);
+    if bag ~= BANK_CONTAINER then
+      local type = TBag:GetBagType(self.playerid, bag); -- needed for cacheing
+      local tex = TBag:GetBagFrameTexture(bag);
+      if tex then tex:SetVertexColor(1.0,1.0,1.0, 1.0); end
+    end
   end
   for i=numSlots+1, NUM_BANKBAGSLOTS do
     bag = i + TBag.NumBags;
-    TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGTYPE, 0);
-    TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGFREE, 0);
-    TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGSIZE, 0);
-    TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_ITEMLINK, nil);
-    TBag:GetBagFrameTexture(bag):SetVertexColor(1.0,0.1,0.1, 1.0);
+    if bag ~= BANK_CONTAINER then
+      TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGTYPE, 0);
+      TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGFREE, 0);
+      TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_BAGSIZE, 0);
+      TBag:SetPlayerBagCfg(self.playerid, bag, TBag.I_ITEMLINK, nil);
+      local tex = TBag:GetBagFrameTexture(bag);
+      if tex then tex:SetVertexColor(1.0,0.1,0.1, 1.0); end
+    end
   end
   for i=1, NUM_BANKBAGSLOTS do
     bag = i + TBag.NumBags;
-
-    TBag:UpdateBagColors(bag);
-
-    TBag:GetBagFrameTexture(bag):SetTexture(
-      TBag:GetBagTexture(self.playerid, bag));
-
-    local free, size = TBag:UpdateSlots(self.playerid, bag, self.cfg["show_bag_sizes"]);
-
-    totalfree = totalfree + free;
-    totalsize = totalsize + size;
+    if bag ~= BANK_CONTAINER then
+      TBag:UpdateBagColors(bag);
+      local tex = TBag:GetBagFrameTexture(bag);
+      if tex then tex:SetTexture(TBag:GetBagTexture(self.playerid, bag)); end
+      local free, size = TBag:UpdateSlots(self.playerid, bag, self.cfg["show_bag_sizes"]);
+      totalfree = totalfree + free;
+      totalsize = totalsize + size;
+    end
   end
   TBag:SetFreeStr(TBnkFrame_TotalText, totalfree, totalsize, self.cfg["show_bag_sizes"]);
 end
@@ -1413,7 +1417,7 @@ function Bank:UpdateWindow(resort_req)
   for _, bag in ipairs(self.bags) do
     local size = TBag:GetPlayerBagCfg(self.playerid, bag, TBag.I_BAGSIZE);
     if (not size) then size = 0; end
-    if (self.cfg["show_Bag"..bag] ~= 1 and not TBag:GetBagFrame(bag):GetChecked()) then
+    if (bag ~= BANK_CONTAINER and self.cfg["show_Bag"..bag] ~= 1 and not TBag:GetBagFrame(bag):GetChecked()) then
       size = 0
     end
     for slot = 1, size do

@@ -180,6 +180,10 @@ BANK_CONTAINER = BANK_CONTAINER or -1;
 -- Also undefined on Forever: MAX_CONTAINER_ITEMS (used as the per-bag button
 -- upper bound) and NUM_BANKBAGSLOTS (TBag has 6 bank bag buttons: ids 5-10).
 MAX_CONTAINER_ITEMS = MAX_CONTAINER_ITEMS or 36;
+-- Forever's modern character bank tab holds 48 slots, more than the classic
+-- 36-slot cap, so make sure we build enough item buttons per container or the
+-- bank tab's last slots would have no button to display in.
+if (MAX_CONTAINER_ITEMS or 0) < 48 then MAX_CONTAINER_ITEMS = 48; end
 NUM_BANKBAGSLOTS = NUM_BANKBAGSLOTS or 6;
 
 -- On mainline-style clients (Forever) the container functions live in the
@@ -260,11 +264,26 @@ TBag.MAX_REAGENTBANK_ITEMS = 98 -- has to be a constant since game can't tell us
 TBag.NumBags = NUM_TOTAL_EQUIPPED_BAG_SLOTS or NUM_BAG_SLOTS or 4;
 do
   local numBankBags = NUM_BANKBAGSLOTS or 6;
-  TBag.BAGMAX = TBag.NumBags + numBankBags;
+  -- Inventory bags: backpack + the equipped bags (incl. the Forever reagent/
+  -- profession bag). The keyring (-1) is handled by the client, not listed here.
   TBag.Inv_Bags = { BACKPACK_CONTAINER };
   for i = TBag.NumBags, 1, -1 do table.insert(TBag.Inv_Bags, i); end
-  TBag.Bnk_Bags = { BANK_CONTAINER };
-  for i = TBag.NumBags + 1, TBag.NumBags + numBankBags do table.insert(TBag.Bnk_Bags, i); end
+
+  if WOW_PROJECT_ID == 18 then
+    -- WoW Forever: the bank is the modern tab system. Each tab is its own
+    -- container starting at CharacterBankTab_1 (6); -1 is the keyring, NOT the
+    -- bank. Point the bank at the first tab and treat the rest as bank "bags".
+    BANK_CONTAINER = (Enum and Enum.BagIndex and Enum.BagIndex.CharacterBankTab_1) or (TBag.NumBags + 1);
+    TBag.BAGMIN = BACKPACK_CONTAINER;
+    TBag.BAGMAX = BANK_CONTAINER + numBankBags - 1;
+    TBag.Bnk_Bags = { BANK_CONTAINER };
+    for i = BANK_CONTAINER + 1, BANK_CONTAINER + numBankBags - 1 do table.insert(TBag.Bnk_Bags, i); end
+  else
+    TBag.BAGMIN = BANK_CONTAINER;
+    TBag.BAGMAX = TBag.NumBags + numBankBags;
+    TBag.Bnk_Bags = { BANK_CONTAINER };
+    for i = TBag.NumBags + 1, TBag.NumBags + numBankBags do table.insert(TBag.Bnk_Bags, i); end
+  end
 end
 TBag.Body_Slots = {
   ["HeadSlot"] = 1,
@@ -620,6 +639,13 @@ function TBag:CreateDummyBag(bag, template)
   if (dbag) then
     local buttonname;
     local level = dbag:GetFrameLevel() + 1
+
+    -- The inherited ContainerFrameItemButton handler resolves which container
+    -- it acts on from its parent frame's id (GetParent():GetID()). The XML
+    -- dummy frame for the main bank tab (TBnkainerFrame4) is id 0, so without
+    -- this the right-click deposit/withdraw would target the backpack. Pin the
+    -- dummy frame id to the real bag number so clicks hit the right container.
+    dbag:SetID(bag);
 
     for slot = 1, self:GetBagMaxItems(bag) do
       buttonname = self:GetBagItemButtonName(bag, slot);
@@ -2240,9 +2266,9 @@ end
 
 function TBag:GetInvSlotID(bag, slot)
   local id;
-  if (bag == BANK_CONTAINER) then
+  if (bag == BANK_CONTAINER) and BankButtonIDToInvSlotID then
     id = BankButtonIDToInvSlotID(slot);
-  elseif (bag == REAGENTBANK_CONTAINER) then
+  elseif (bag == REAGENTBANK_CONTAINER) and ReagentBankButtonIDToInvSlotID then
     id = ReagentBankButtonIDToInvSlotID(slot);
   elseif (bag >= BACKPACK_CONTAINER) and (bag <= self.BAGMAX) then
     id = 100*bag + slot;  -- ???
@@ -2295,7 +2321,11 @@ function TBag:SetInventoryItem(tt, playerid, itemlink, bag, slot, suffix)
   if (playerid == self.PLAYERID) then
     -- Inventory and being at the bank is always safe
     if (self:Member(self.Inv_Bags, bag) or TBnkFrame.atbank == 1) then
-      if (bag == BANK_CONTAINER) or (bag == REAGENTBANK_CONTAINER) then
+      -- The classic bank/reagent-bank live at negative container ids and must
+      -- be read via SetInventoryItem(BankButtonIDToInvSlotID(...)). On Forever
+      -- the bank is a real container (6+) with no BankButtonIDToInvSlotID, so
+      -- it is read with SetBagItem like any other bag.
+      if ((bag == BANK_CONTAINER) or (bag == REAGENTBANK_CONTAINER)) and bag < 0 then
         if tt.SetInventoryItem then
           hasCooldown, repairCost = tt:SetInventoryItem("player", self:GetInvSlotID(bag, slot));
         end
@@ -2767,7 +2797,7 @@ function TBag:SortItmCache(cfg, playerid, itmcache, baritm, bagarr, atbank)
       return baritm;
     end
 
-    if (cfg["show_Bag"..bag] == 1 or TBag:GetBagFrame(bag):GetChecked()) then
+    if (bag == BANK_CONTAINER or cfg["show_Bag"..bag] == 1 or TBag:GetBagFrame(bag):GetChecked()) then
       size = table.getn(itmcache[bag]);
       if (size > 0) then
 --        self:PrintDEBUG("Show bag "..bag);

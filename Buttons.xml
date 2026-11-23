@@ -39,6 +39,8 @@
     <Scripts>
       <OnLoad>
         if ContainerFrameItemButton_OnLoad then ContainerFrameItemButton_OnLoad(self); end
+        self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+        self:RegisterForDrag("LeftButton");
         self.UpdateTooltip = TBag.ItemButton.OnEnter;
         local newitem = _G[self:GetName() .. "NewItemTexture"]
         if newitem then
@@ -55,6 +57,15 @@
       <OnLeave>
         TBag.ItemButton.OnLeave(self, motion);
       </OnLeave>
+      <PreClick>
+        TBag.ItemButton.PreClick(self, button);
+      </PreClick>
+      <OnDragStart>
+        TBag.ItemButton.OnDragStart(self);
+      </OnDragStart>
+      <OnReceiveDrag>
+        TBag.ItemButton.OnReceiveDrag(self);
+      </OnReceiveDrag>
     </Scripts>
   </Button>
 

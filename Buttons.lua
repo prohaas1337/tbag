@@ -132,6 +132,65 @@ function ItemButton:OnLeave()
   end
 end
 
+-- Right-click an item while the bank is open to deposit it to / withdraw it
+-- from the character bank, matching the default UI. The modern (Forever) bank
+-- needs the bankType argument on UseContainerItem; the inherited item-button
+-- handler omits it, so the move silently does nothing. We supply it here using
+-- TBag's own (bag, slot) mapping. Only acts at the bank; everything else falls
+-- through to the normal handler.
+function ItemButton.PreClick(self, button)
+  if button ~= "RightButton" then return end
+  if InCombatLockdown() then return end
+  if not (TBnkFrame and TBnkFrame.atbank == 1) then return end
+  if not (C_Container and C_Container.UseContainerItem) then return end
+
+  local mainFrame = self:GetParent():GetParent()
+  if not mainFrame or mainFrame.edit_mode == 1 then return end
+  if not TBag:IsLive(mainFrame) then return end
+
+  local itm = TBag:GetItmFromFrame(TBag.BUTTONS, self)
+  if not itm or not next(itm) then return end
+  local bag, slot = itm[TBag.I_BAG], itm[TBag.I_SLOT]
+  if not bag or not slot or not itm[TBag.I_ITEMLINK] then return end
+
+  local bankType = (Enum and Enum.BankType and Enum.BankType.Character) or 0
+  C_Container.UseContainerItem(bag, slot, nil, bankType)
+end
+
+-- Pick the item up onto the cursor when the player starts dragging it out of a
+-- TBag window. The inherited ContainerFrameItemButton template does not register
+-- these buttons for drag on Forever, so without this there is no way to drag an
+-- item onto the action bar, a trade/mail window, etc. We resolve (bag, slot) the
+-- same way Blizzard's own handler does: the dummy bag frame id is the bag and
+-- the button id is the slot (TBag keeps those ids in sync; it even forces the id
+-- to 100 to disable pickup when viewing another character). Only acts on the
+-- live player's own bags; cached views never pick up.
+function ItemButton.OnDragStart(self)
+  if InCombatLockdown() then return end
+  local mainFrame = self:GetParent():GetParent()
+  if not mainFrame or mainFrame.edit_mode == 1 then return end
+  if not TBag:IsLive(mainFrame) then return end
+  if not PickupContainerItem then return end
+
+  local bag, slot = self:GetParent():GetID(), self:GetID()
+  if not bag or not slot then return end
+  PickupContainerItem(bag, slot)
+end
+
+-- Drop whatever is on the cursor into this slot, mirroring OnDragStart so an
+-- item can be dragged back into a TBag window (or swapped between slots).
+function ItemButton.OnReceiveDrag(self)
+  if InCombatLockdown() then return end
+  local mainFrame = self:GetParent():GetParent()
+  if not mainFrame or mainFrame.edit_mode == 1 then return end
+  if not TBag:IsLive(mainFrame) then return end
+  if not PickupContainerItem then return end
+
+  local bag, slot = self:GetParent():GetID(), self:GetID()
+  if not bag or not slot then return end
+  PickupContainerItem(bag, slot)
+end
+
 function ItemButton:OnClick(button)
   local itm = TBag:GetItmFromFrame(TBag.BUTTONS, self)
   if not itm or not next(itm) then return end
@@ -494,13 +553,13 @@ function BagButton:OnEnter()
   if TBag:Member(TBag.Bnk_Bags,bag) then
     local numSlots = TBag:GetNumBankSlots(mainFrame.playerid)
 
-    if bag <= numSlots + TBag.NumBags then
+    if bag == BANK_CONTAINER or bag <= numSlots + TBag.NumBags then
       SetItemButtonTextureVertexColor(self, 1,0, 1.0, 1.0, 1.0)
       GameTooltip:AddLine(BANK_BAG, 1.0, 1.0, 1.0)
     else
       SetItemButtonTextureVertexColor(self, 1,0, 0.1, 0.1, 1.0)
       GameTooltip:AddLine(BANK_BAG_PURCHASE, 1.0, 1.0, 1.0)
-      if mainFrame.atbank == 1 then
+      if mainFrame.atbank == 1 and GetBankSlotCost then
         SetTooltipMoney(GameTooltip, GetBankSlotCost(numSlots))
       end
     end
@@ -539,14 +598,19 @@ function BagButton:OnClick(button,down,drag)
   -- GetNumBankSlots is 0, so the old "bag > numSlots + 4" wrongly matched the
   -- inventory profession bag (5) and bailed out before highlighting.
   local numSlots = TBag:GetNumBankSlots(mainFrame.playerid)
-  if TBag:Member(TBag.Bnk_Bags, bag) and bag > numSlots + TBag.NumBags then
+  if TBag:Member(TBag.Bnk_Bags, bag) and bag ~= BANK_CONTAINER and bag > numSlots + TBag.NumBags then
     self:SetChecked(not self:GetChecked())
-    -- Needed to make the CONFIRM_BUY_BANK_SLOT popup work right
-    BankFrame.nextSlotCost = GetBankSlotCost(numSlots)
     if mainFrame.atbank == 1 then
-      PlaySound(852)
-      StaticPopup_Show("CONFIRM_BUY_BANK_SLOT")
-      mainFrame:UpdateBagGfx()
+      -- Classic buys an extra bank bag slot via GetBankSlotCost + the
+      -- CONFIRM_BUY_BANK_SLOT popup. On Forever those globals do not exist
+      -- (the extra tabs are bought through the protected modern bank UI), so
+      -- only drive that path where it is actually available.
+      if GetBankSlotCost and StaticPopup_Show then
+        BankFrame.nextSlotCost = GetBankSlotCost(numSlots)
+        PlaySound(852)
+        StaticPopup_Show("CONFIRM_BUY_BANK_SLOT")
+        mainFrame:UpdateBagGfx()
+      end
     end
     return
   end

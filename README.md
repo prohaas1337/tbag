@@ -34,6 +34,10 @@ no battle pets, no modern profession tab, no currency tab).
   alts that share a first name no longer collide in the saved caches.
 - **`C_PetJournal`** calls are guarded, since the Forever client has no battle
   pet system.
+- **Dragging items out** (onto the action bar, trade/mail windows, etc.) now
+  works: the item buttons are registered for drag and pick the item up via
+  `C_Container.PickupContainerItem`. The inherited container-button template
+  does not wire this up on Forever, so previously nothing could be dragged out.
 
 The container, bank, and item APIs TBag relies on are already compatible with
 Forever; they are the same ones Bagnon uses on this client.
