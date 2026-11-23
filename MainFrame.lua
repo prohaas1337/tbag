@@ -106,7 +106,8 @@ function MainFrame:OnHide()
 
   if self.atbank and self.atbank == 1 then
     self.atbank = 0
-    if CloseBankFrame then CloseBankFrame() end
+    -- CloseBankFrame may be a protected function on some builds; guard it.
+    if CloseBankFrame then pcall(CloseBankFrame) end
   end
 
   -- Always reset to the global player for event processing

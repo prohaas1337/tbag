@@ -28,6 +28,12 @@ Hooks.savedfuncs = {}
 local inMerchantFrameOnHide = false
 
 function Hooks.Register(reg)
+  -- On WoW Forever (project 18) the global bag functions (OpenBag, CloseBag,
+  -- ToggleBag, etc.) are protected.  Replacing them via setglobal taints the
+  -- secure bank-open call chain and produces the ADDON_ACTION_BLOCKED error.
+  -- Skip the replacement hooks; bank is handled via BANKFRAME_OPENED events.
+  if WOW_PROJECT_ID == 18 then return end
+
   local funcs = Hooks.funcs
   local scripts = Hooks.scripts
   local savedfuncs = Hooks.savedfuncs
